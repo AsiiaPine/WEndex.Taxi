@@ -71,18 +71,4 @@ public:
 };
 
 
-Car* GetCarByModel(CarModel model) {
-    switch (model.type) {
-        case Economy: return new EconomyCar(model);
-        case Comfort: return new ComfortCar(model);
-        case Business: return new BusinessCar(model);
-    }
-    unexpected();
-}
-
-
-
 #endif //WENDEX_TAXI_CAR_H
-//A Car has model, carType, current coordinates, the color and the number.
-// If the type is Comfort it has count of freeBottleOfwater (it randomly decreases during rides).
-// If the type is Business it has the method parkRightInFrontOfTheEntrance. The order has time and two addresses.
