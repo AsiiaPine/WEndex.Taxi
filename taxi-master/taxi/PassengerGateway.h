@@ -8,62 +8,57 @@
 
 #include "UserAppData/paymentMethods.h"
 #include "Address.h"
-#include "UserAppData/CarType.h"
+#include "CarType.h"
 #include "UserAppData/paymentMethods.h"
 #include "UserAppData/Passenger.h"
 #include "Order.h"
+#include "WendexTaxi.h"
+#include "AccessManager.h"
 
 class PassengerGateway {
 private:
+
+    AccessManager *accessManager;
+    UserModel *identity;
+    struct System *system;
     Passenger* passenger;
     Order* currentOrder;
-    static OrderRepository* orderRepository;
+    //static OrderRepository* orderRepository;
     static vector<Passenger*> AllPassengers;
+
+    UserRepository *userRepository;
+    OrderRepository *orderRepository;
+    AddressRepository *addressRepository;
+    PassengerRepository *passengerRepository;
+    DriverRepository *driverRepository;
+    CarRepository *carRepository;
 
 public:
 
+    PassengerGateway(System *system, UserModel *identity, AccessManager *accessManager);
 
 
-    //void LogOut() = 0;
+    virtual vector<Order *> SeeOrderHistory() ;
 
-    //static PassengerGateway* SignUp(string UserName, string password, string email) = 0;
+    virtual PaymentMethod SeePaymentMethod();
 
-    virtual void SeeOrderHistory() = 0;
+    virtual void UpdatePaymentMethod(PaymentMethod newMethod) ;
 
-    virtual void SeePayMethod() = 0;
+    virtual Address SeePinnedAddress();
 
-    virtual void UpdatePay(PaymentMethod newMethod) = 0;
+    virtual void UpdateAddress(Address adr);
 
-    virtual void PinnedAddr() = 0;
+    virtual void
+    OrderTheRide(CarType type, Address startAddress, Address destinationAddress, int cost, PaymentMethod paymentMethod);
 
-    virtual void UpdateAddr(Address adr) = 0;
+    virtual Coords CurrentCoordinates();
 
-    virtual void OrderTheRide(CarType type, Address address, Address startAddress, PaymentMethod paymentMethod) = 0;
-
-    virtual Coords CurrentCoordinates() = 0;
-
-    virtual void TheBill(Order* order) = 0;
-
-    virtual void LogIn(string UserName, string password) = 0;
+    virtual Order *TheBill(Order *order);
 
 };
 
-PassengerGateway *GetDefaultPassengerGateway(Passenger passenger);
 
-//
-//    A Passenger has name, rating, order history, payment methods, pinned
-//    addresses. He can
-//    – login, see order history, see and update payment methods, see and
-//    update pinned addresses.
-//    – select any two addresses (from, to) and carType to check the time
-//            and price of the ride. There are 4 car types: Economy, Comfort,
-//            ComfortPlus, Business.
-//    – order the ride if he agree with conditions (there is possibility to
-//                                                  change default payment method for this particular ride).
-//    – ask for the current coordinates of the car during the ride.
-//    – see the ride in the order history after the end of the ride and ask for
-//    the bill of that ride.
-
-
+PassengerGateway *GetDefaultPassengerGateway(UserModel *identity);
 
 #endif //WENDEX_TAXI_PASSENGERGATEWAY_H
+
