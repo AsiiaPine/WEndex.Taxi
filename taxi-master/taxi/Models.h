@@ -2,6 +2,9 @@
 #define WENDEX_TAXI_MODELS_H
 
 #include "Repository.h"
+#include <set>
+
+using namespace std;
 
 enum UserRole : uint32_t {
     ROLE_ADMIN = 0,
@@ -67,11 +70,16 @@ public:
 
 };
 
+enum PassengerPermission : uint32_t {
+    VIEW_HISTORY = 0
+};
+
 struct PassengerModel {
     int32_t id = 0;
     int32_t userId = 0;
     int32_t paymentMethod = 1;
     int32_t u0 = 0;
+    set<PassengerPermission> permissions;
 };
 
 class PassengerRepository : public Repository<PassengerModel, sizeof(PassengerModel)> {
@@ -82,5 +90,7 @@ public:
         return FindEntityByFieldValue(&userId,offsetof(PassengerModel, userId), sizeof(int32_t));
     }
 };
+
+
 
 #endif //WENDEX_TAXI_MODELS_H
