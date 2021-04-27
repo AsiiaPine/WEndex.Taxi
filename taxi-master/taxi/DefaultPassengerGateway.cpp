@@ -8,7 +8,7 @@ class DefaultPassengerGateway : public PassengerGateway {
 private:
     Passenger passenger;
     Order* currentOrder;
-    static OrderRepository* orderRepository;
+    //static OrderRepository* orderRepository;
     static vector<Passenger*> AllPassengers;
 public:
     explicit DefaultPassengerGateway(Passenger passenger) : PassengerGateway(), passenger(passenger) {}
