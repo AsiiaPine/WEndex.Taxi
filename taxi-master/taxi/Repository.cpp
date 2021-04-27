@@ -83,12 +83,17 @@ public:
             };tableCounter += 1;
 
             mmapMap[++tableCounter] = desc;
+//            tableMap[++tableCounter] = file;
+//            mappingMap[tableCounter] = mmap(nullptr, 1U << 30, PROT_READ | PROT_WRITE,
+//                                            MAP_ANONYMOUS | MAP_PRIVATE | MAP_NORESERVE, -1, 0);
             struct stat buffer;
             auto ret = stat(tableName,&buffer);
             if (ret == 0) {
                 mmapMap[tableCounter].nUsed = buffer.st_size;
                 fread(desc.ptr,1,buffer.st_size,file);
+                //WriteAt(tableCounter,0,buffer.st_size,desc.ptr);
             } else {
+                // no database yet
             }
 
             return tableCounter;
@@ -113,28 +118,43 @@ public:
 
     int GetTableSize(int tableId) override {
         auto &mapping = mmapMap[tableId];
+        //auto savedPos = ftell(file);
+        //fseek(file, 0, SEEK_END);
+        //auto endPos = ftell(file);
+        //fseek(file, savedPos, SEEK_SET);
         return mapping.nUsed;
+        //return endPos;
     }
 
     int ReadAt(int tableId, int nOffset, int nBytes, void *dataOutPtr) override {
         auto &mapping = mmapMap[tableId];
         memcpy(dataOutPtr,reinterpret_cast<uint8_t*>(mapping.ptr)+nOffset,nBytes);
+        //fseek(mmapMap[tableId].file, nOffset, SEEK_SET);
         return 0;
+        //return fread(dataOutPtr, 1, nBytes, mmapMap[tableId].file);
     }
 
     void *ReadAt(int tableId, int nOffset, int nBytes) override {
+        //fseek(mmapMap[tableId].file, nOffset, SEEK_SET);
         auto objectPtr = malloc(nBytes);
         auto &mapping = mmapMap[tableId];
         std::memcpy(objectPtr,reinterpret_cast<uint8_t*>(mapping.ptr)+nOffset,nBytes);
+        //fread(objectPtr, 1, nBytes, mmapMap[tableId].file);
         return objectPtr;
     }
 
     int WriteAt(int tableId, int nOffset, int nBytes, void *dataPtr) override {
         auto &mapping = mmapMap[tableId];
         auto offset = nOffset == -1 ? mapping.nUsed : nOffset;
+//        if (nOffset == -1) {
+//            fseek(mmapMap[tableId].file, 0, SEEK_END);
+//        } else {
+//            fseek(mmapMap[tableId].file, nOffset, SEEK_SET);
+//        }
         std::memcpy(reinterpret_cast<uint8_t*>(mapping.ptr)+offset,dataPtr,nBytes);
         mapping.nUsed += (nOffset == -1 ? nBytes : 0);
         return 0;
+        //return fwrite(dataPtr, nBytes, 1, mmapMap[tableId].file);
     }
 
 };
