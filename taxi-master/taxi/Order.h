@@ -4,137 +4,98 @@
 
 #ifndef WENDEX_TAXI_ORDER_H
 #define WENDEX_TAXI_ORDER_H
+
 #include <cinttypes>
 #include <ctime>
 #include"Repository.h"
 #include <stdio.h>
 #include <iostream>
 #include <vector>
-//
-//using namespace std;
-//struct time{
-//    std::time_t t = std::time(0);   // get time now
-//    std::tm* now = std::localtime(&t);
-//    int hours=now->tm_hour;
-//    int minutes=now->tm_min;
-//};
-//void PrintTheTime(struct time Time){
-//    printf("%s",ctime(&Time.t));
-//    cout<<Time.hours<<":"<<Time.minutes;
-//}
 #include "Address.h"
-#include "UserAppData/Driver.h"
+#include "UserAppData/User.h"
 
 using namespace std;
-enum OrderType{
+enum OrderType {
 
 };
 
 
 struct OrderModel {
-    int32_t id;
-    int32_t passengerId;
-    int32_t cost;
-    int32_t startAddressId;
-    int32_t endAddressId;
-    uint64_t startTime;
-    uint64_t endTime;
+    int32_t id = 0;
+    int32_t passengerId = 0;
+    int32_t driverId = 0;
+    int32_t cost = 0;
+    int32_t startAddressId = 0;
+    int32_t endAddressId = 0;
+    uint64_t startTime = 0;
+    uint64_t endTime = 0;
 };
 
-struct Order {
-    //Order(Passenger *passenger, Address &address, const struct time &startTime, int id, Address &startAddress, int cost);
-//    Address address;
-//    struct time startTime, finishTime;
-//    int id;
-//    Address startAddress;
-//    int cost;
-};
+class Order {
+private:
 
-//int ComputeCost(struct time start, struct time finish){
-//
-//}
-void PrintTheOrder(Order order){
-//    cout<<"Address: ";
-//    PrintTheAddress(order.address);
-//    cout<<"Initial address:";
-//    PrintTheAddress(order.startAddress);
-//    cout<<"Cost: "<<order.cost;
-//    cout<<"Start time: ";
-//    PrintTheTime(order.startTime);
-//    cout<<endl;
-//    cout<<"Start time: ";
-//    PrintTheTime(order.finishTime);
-//    cout<<endl;
-}
-vector<Order> AllOrders;
-vector<Order> Finished;
+    OrderModel *m;
+    Address endAddress;
+    Address startAddress;
+    PaymentMethod paymentMethod;
+    Passenger *passenger;
+    Driver *driver;
 
-
-
-class OrderRepository : public Repository<OrderModel> {
 public:
-    OrderRepository();
+    explicit Order(OrderModel *model, Address startAddress, Address endAddress, PaymentMethod method,Passenger *pass, Driver *driver)
+            : m(model), startAddress(startAddress), endAddress(endAddress), paymentMethod(method), passenger(passenger), driver(driver) {}
 
-    vector<OrderModel> GetOrdersByPassengerId(int passengerId) {
-        vector<OrderModel> orderList;
-        for (int i = 0; ; i++) {
-            selectEntity(i);
-            if (!hasCurrent()) {
-                break;
-            }
-            OrderModel order;
-            readCurrent(&order);
-            if (order.passengerId == passengerId) {
-                orderList.emplace_back(order);
-            }
-        }
-        return orderList;
+    int getId() {
+        return m->id;
+    }
+
+    Passenger *getPassenger() {
+        return passenger;
+    }
+
+    Driver *getDriver() {
+        return driver;
+    }
+
+    void setDriver(Driver *driver) {
+        this->driver = driver;
+    }
+
+    Address getStartAddress() {
+        return startAddress;
+    }
+
+    Address getEndAddress() {
+        return endAddress;
+    }
+
+    PaymentMethod getPaymentMethod() {
+        return paymentMethod;
+    }
+
+    void setPaymentMethod(PaymentMethod method) {
+        paymentMethod = method;
+    }
+
+    void setStartAddress(Address address) {
+        startAddress = address;
+        m->startAddressId = address.id;
+    }
+
+    void setEndAddress(Address address) {
+        endAddress = address;
+        m->endAddressId = address.id;
+    }
+
+};
+
+class OrderRepository : public Repository<OrderModel, sizeof(OrderModel)> {
+public:
+    explicit OrderRepository(Database *db) : Repository(db, db->OpenTable("order.table")) {};
+
+    std::vector<OrderModel *> FindAllByPassengerId(int32_t passId) {
+        return FindEntitiesByFieldValue(&passId, offsetof(OrderModel, passengerId), sizeof(int32_t));
     }
 };
-//
-//class OrderRepository1 : public Repository<Order> {
-//private:
-//    int file;
-//
-//public:
-//    int amountOfOrders=0;
-//
-//    OrderRepository(const char *path1, int entitySize, const char *path) : Repository(path1, entitySize) {
-//        file = open("map.txt",O_RDWR);
-//    }
-//protected:
-//    int selectOrder(int index) {
-//        return lseek(file,index * sizeof(struct Order), SEEK_SET);
-//    }
-//
-//    bool hasNext() {
-//        return f
-//    }
-//
-//private:
-//    int &getId(Order *entity) override {
-//        return entity->id;
-//    }
-//
-//public:
-//    Order GetOrder(int index){
-//        selectOrder(index);
-//        return read(file,&Order,sizeof(struct Order));
-//    }
-////protected:
-//public:
-////    int Create(Order* OrderPtr){
-////        lseek(this->file,0,SEEK_END);
-////        int filesize = tell(file);
-////        OrderPtr->id=filesize/ sizeof(Order);
-////        write(file,OrderPtr,sizeof(Order));
-////        this->amountOfOrders++;
-////    }
-//    int Update(const Order* OrderPtr){
-//        selectOrder(OrderPtr->id);
-//        write(file,OrderPtr,sizeof(Order));
-//    }
-//};
-
 
 #endif //WENDEX_TAXI_ORDER_H
