@@ -74,6 +74,10 @@ public:
         return database->GetTableSize(tableId);
     }
 
+    int GetEntitiesCount() {
+        return GetTableLength() / entitySize;
+    }
+
     void WriteAt(int offset, Entity *entityPtr) {
         database->WriteAt(tableId, offset, entitySize, entityPtr);
     }
